@@ -23,5 +23,30 @@ pipeline {
                 archiveArtifacts 'shopping-cart/target/*.jar'
             }
         }
+
+stage('Build Image') {
+    environment { QUAY = credentials('QUAY_USER') } 1
+    steps {
+        sh '''
+           cd shopping-cart
+           ./mvnw quarkus:add-extension \
+            -Dextensions="kubernetes,container-image-jib" 2
+        '''
+        sh '''
+             cd shopping-cart
+            ./mvnw package -DskipTests \
+            -Dquarkus.jib.base-jvm-image=quay.io/redhattraining/do400-java-alpine-openjdk11-jre:latest \
+            -Dquarkus.container-image.build=true \ 3
+            -Dquarkus.container-image.registry=quay.io \ 4
+            -Dquarkus.container-image.group=$QUAY_USR \ 5
+            -Dquarkus.container-image.name=do400-deploying-environments \ 6
+            -Dquarkus.container-image.username=$QUAY_USR \ 7
+            -Dquarkus.container-image.password="$QUAY_PSW" \ 8
+            -Dquarkus.container-image.push=true 9
+        '''
+    }
+}
+
+
     }
 }
