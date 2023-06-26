@@ -20,7 +20,7 @@ pipeline {
                     ./mvnw package -DskipTests \
                     -Dquarkus.package.type=uber-jar
                 '''
-                archiveArtifacts 'target/*.jar'
+                archiveArtifacts 'shopping-cart/target/*.jar'
             }
         }
     }
